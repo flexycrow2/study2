@@ -1,4 +1,4 @@
-package chapter17.ex;
+package chapter17;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,3 +57,4 @@ public class LiveCoding {
         System.out.println(Arrays.toString(arr2));
     }
 }
+
