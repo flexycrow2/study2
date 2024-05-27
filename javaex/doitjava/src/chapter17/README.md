@@ -503,6 +503,68 @@ public class ArrayListVsLinkedList {
 
 ----------------------
 
+### 17.3 Set<E> 컬렉션 인터페이스
+
+    Set<E>는 동일한 타입의 묶음이지만 인덱스 정보를 포함하고 있지 않은 집합 같은 컬렉션.
+    인덱스 정보가 없어서 데이터 중복하면 특정 데이터를 꺼낼 수 없음
+    즉, 데이터 구분할 수 있는 유일한 방법은 데이터 그 자체. -> 데이터의 중복 저장을 허용하지 않음
+    
+---------------------
+
+    Set<E>는 데이터의 인덱스 정보를 가지고 있지 않으므로 List<E>의 메서드와 비교하면 인덱스가 포함된 메서드가 모두 사라짐
+
+    contains(Object o) - 해당 Set<E> 매개변수로 넘어온 데이터가 객체 내에 포함되어 있는지를 불리언값으로 리턴
+    iterator() - Iterator<E> 객체를 리턴. Set<E> 객체에서 데이터를 1개씩 꺼내는 기능을 포함. 인덱스 정보가 없으므로 for문 불가
+               - for-each 가능
+
+----------------
+    
+    *Set<E>
+    인터페이스이므로 자체적으로 객체 생성 불가.
+    List<E>처럼 Set<E> 인터페이스를 상속한 구현 클래스 이용해야함.
+    대표적으로 HashSet<E>, LinkedHashSet<E>, TreeSet<E> 클래스가 있음
+    
+-----------------
+HashSet<E> 구현 클래스
+
+    저장 데이터를 꺼낼 때 입력 순서와 다를 수 있음.
+    인덱스 번호가 없으므로 주머니에 손을 넣어 1개씩 꺼내는 것과 같음
+    HashSet<E>컬렉션도 저장 용량을 동적으로 관리하고, 기본 새성자로 생성할 때 기본값은 16.(데이터 개수가 많아지면 동적으로 증가)
 
     
+-----------------
+TreeSet<E> 구현 클래스
+
+    TreeSet<E>는 공통적인 Set<E>의 기능에 크기에 따른 정렬 및 검색 기능이 추가된 컬렉션
+    HashSet<E>는 입력 순서와 다를 수 있고, LinkedHashSet<E>는 항상 입력 순서와 동일
+
+    TreeSet<E>는 데이터를 입력 순서와 상관없이 크기순으로 출력.
     
+    HashSet<E>에서 두 객체가 같은지, 다른지를 비교했다면
+    TreeSet<E>는 두 객체의 크기를 비교.
+
+----------------
+
+    Set ← SortedSet ← NavigableSet ← TreeSet
+    TreeSet<E>로 선언해야 SortedSet<E>, NavigableSet<E>에서 추가된 정렬 및 검색 메서드를 호출할 수 있음
+
+----------------
+
+    데이터검색
+    first() - Set 원소 중 가장 작은 원솟값 리턴
+    last() - Set 원소 중 가장 큰 원솟값 리턴
+    lower(E element) - 매개변수로 입력된 원소보다 작은, 가장 큰 수
+    higher(E element) - 매개변수로 입력된 원소보다 큰, 가장 작은 수
+    floor(E element) - 매개변수로 입력된 원소보다 같거나 작은 가장 큰 수
+    ceiling(E element) - 매개변수로 입력된 원소보다 같거나 큰 가장 작은 수
+
+    데이터 꺼내기
+    pollFirst() - Set 원소들 중 가장 작은 원솟값을 꺼내 리턴
+    pollLast() - Set 원소들 중 가장 큰 원솟값을 꺼내 리턴
+
+    데이터 부분 집합 생성
+    SortedSet<E> headSet(E toElement) - toElement 미만인 모든 원소로 구성된 Set을 리턴(toElement 미포함)
+    NavigableSet<E> headSet(E toElement boolean inclusive) - toElement 미만/이하인 모든 원소로 구성된 Set을 리턴
+    (inclusive=true이면 toElement 포함, inclusive=false이면 toElement 미포함)
+
+---------------------------
