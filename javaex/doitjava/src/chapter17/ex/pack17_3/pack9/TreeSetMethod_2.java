@@ -34,7 +34,7 @@ class MyComparableClass implements Comparable<MyComparableClass>{
 public class TreeSetMethod_2 {
     public static void main(String[] args) {
         //1. Integer 크기 비교
-        TreeSet<Integer> treeSet1 = new TreeSet<>();
+        TreeSet<Integer> treeSet1 = new TreeSet<Integer>();
         Integer intValue1 = new Integer(20);
         Integer intValue2 = new Integer(10);
         treeSet1.add(intValue1);
@@ -42,7 +42,7 @@ public class TreeSetMethod_2 {
         System.out.println(treeSet1.toString());
 
         //2. String 크기 비교
-        TreeSet<String> treeSet2 = new TreeSet<>();
+        TreeSet<String> treeSet2 = new TreeSet<String>();
         String str1 = "가나";
         String str2 = "다라";
         treeSet2.add(str1);
@@ -66,6 +66,12 @@ public class TreeSetMethod_2 {
         for (MyComparableClass mcc : treeset4) {
             System.out.println(mcc.data1);
         }
+
+
+//        for (MyComparableClass mcc : treeset4) {
+//            System.out.println(mcc.data2);
+//        }
+        System.out.println("엥");
 
         //5. MyClass 객체 크기 비교 방법 2
         TreeSet<MyClass> treeSet5 = new TreeSet<MyClass>(new Comparator<MyClass>() {

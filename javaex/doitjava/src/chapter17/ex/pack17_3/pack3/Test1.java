@@ -17,8 +17,8 @@ public class Test1 {
         A a2 = new A(3);
         System.out.println(a1 == a2);       //false
         System.out.println(a1.equals(a2));  //false
-//        System.out.println(a1.data);
-//        System.out.println(a2.data);
+        System.out.println(a1.data);
+        System.out.println(a2.data);
         System.out.println(a1.hashCode() + " " +a2.hashCode()); //189568618 793589513
 
         hashset1.add(a1);

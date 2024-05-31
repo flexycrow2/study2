@@ -1,5 +1,7 @@
 package chapter17.ex.pack17_3.pack4;
 
+import com.sun.source.tree.UsesTree;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,12 +20,15 @@ class B{
         return false;
     }
 }
+
 public class Test2 {
     public static void main(String[] args) {
         // equals(): 오버라이딩 O + hashcode() : 오버라이딩 X
         Set<B> hashSet2 = new HashSet<>();
-        B b1 = new B(3);
-        B b2 = new B(3);
+        B b1 = new B(3); //100
+        B b2 = new B(3); //200
+        System.out.println(b1);
+        System.out.println(b2);
         System.out.println(b1 == b2);       //false
         System.out.println(b1.equals(b2));  //true
 //        System.out.println(b1.data);
