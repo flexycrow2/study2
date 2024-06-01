@@ -568,3 +568,381 @@ TreeSet<E> 구현 클래스
     (inclusive=true이면 toElement 포함, inclusive=false이면 toElement 미포함)
 
 ---------------------------
+중복확인 매커니즘 이해
+    
+    중복확인 메커니즘 이해를 위한 사전 지식 pack17_3_0
+
+    
+
+--------
+
+### 17.4 Map<K,V> 컬렉션 인터페이스
+
+    Map<K,V> 컬렉션은 상속 구조상 List<E>, Set<E>와 분리되어 있음
+    List<E>, Set<E>는 Collection<E> 인터페이스를 상속 받음
+    Map<K,V>는 별도의 인터페이스로 존재
+
+-----------------------------
+
+    Map<K,V> 컬렉션 특징
+    1.Key, Value 한 쌍으로 데이터 저장. (한 쌍의 데이터를 엔트리라고 함.)
+    2.Key는 중복 저장 불가, Value는 중복 가능. (데이터 구분 기준이 Key 값)
+
+    Map<K,V>는 Key값들을 Set<E> 형태로 관리해서 Key값의 중복이 불가능함.
+
+------------------
+HashMap<K,V>
+
+```java
+package chapter17.ex.pack17_4.pack1;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class HashMapMethod {
+    public static void main(String[] args) {
+
+        //데이터 추가
+        Map<Integer, String> hMap1 = new HashMap<Integer, String>();
+        //1. put(K key, V value)
+        hMap1.put(2, "나다라");
+        hMap1.put(1, "가나다");
+        hMap1.put(3, "다라마");
+        System.out.println(hMap1.toString());
+
+        //2. putAll(Map<? extends K, ? extends V> m)
+        Map<Integer, String> hmap2 = new HashMap<Integer, String>();
+        hmap2.putAll(hMap1);
+        System.out.println(hmap2.toString());
+
+        //데이터 변경
+        //3. replace(K key, V value)
+        hmap2.replace(1, "가가가");
+        hmap2.replace(4, "라라라"); // key = 4 인 엔트리가 없어서 동작X
+        System.out.println(hmap2.toString());
+
+        //4. replace(K key, V oldValue, V newValue)
+        hmap2.replace(1, "가가가", "나나나");
+        hmap2.replace(2, "다다다", "라라라"); //해당 엔트리 없어서 동작X
+        System.out.println(hmap2.toString());
+
+        //데이터 정보 추출
+        //5. V get(Object key)
+        System.out.println(hmap2.get(1)); // 나나나
+        System.out.println(hmap2.get(2)); // 나다라
+        System.out.println(hmap2.get(3)); // 다라마
+
+        //6. containsKey(Object value)
+        System.out.println(hmap2.containsKey(1)); // true
+        System.out.println(hmap2.containsKey(5)); // false
+
+        //7. containsValue(Object value)
+        System.out.println(hmap2.containsValue("나나나")); //true
+        System.out.println(hmap2.containsValue("다다다")); //false
+
+        //8. Set<K> keySet()
+        Set<Integer> keySet = hmap2.keySet();
+        System.out.println(keySet.toString()); //[1,2,3]
+
+        //9. Set<Map.Entry<K,V>> entrySet()
+        Set<Map.Entry<Integer, String>> entrySet = hmap2.entrySet();
+        System.out.println(entrySet); // [1=나나나, 2=나다라, 3=다라마]
+
+        //10. size()
+        System.out.println(hmap2.size()); //3
+
+        //데이터 삭제
+        //11. remove(Obejct key)
+        hmap2.remove(1);
+        hmap2.remove(4); // 동작X
+        System.out.println(hmap2.toString()); // {2=나다라, 3=다라마}
+
+        //12. remove(Object key, Object value)
+        hmap2.remove(2, "나다라");
+        hmap2.remove(3, "다다다"); // 동작X
+        System.out.println(hmap2.toString()); // {3=다라마}
+
+        //13. clear()
+        hmap2.clear();
+        System.out.println(hmap2.toString()); // {}
+    }
+}
+```
+
+------------
+
+    HashMap<K,V>에서 Key의 중복 확인 메커니즘
+
+------------
+
+```java
+package chapter17.ex.pack17_4.pack2;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+class A {
+    int data;
+    public A(int data) {
+        this.data = data;
+    }
+}
+
+class B {
+    int data;
+
+    public B(int data) {
+        this.data = data;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof B) {
+            this.data = ((B)obj).data;
+            return true;
+        }
+        return false;
+    }
+}
+
+class C {
+    int data;
+
+    public C(int data) {
+        this.data = data;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof C) {
+            this.data = ((C)obj).data;
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(data);
+    }
+}
+public class HashMapMachanism {
+    public static void main(String[] args) {
+        //1. 어떤 것도 오버라이딩 하지 않음
+        Map<A, String> hashMap1 = new HashMap<>();
+        A a1 = new A(3);
+        A a2 = new A(3);
+        System.out.println(a1 == a2);
+        System.out.println(a1.equals(a2));
+        System.out.println(a1.hashCode() + ", " + a2.hashCode());
+        hashMap1.put(a1, "첫 번째");
+        hashMap1.put(a2, "두 번째");
+        System.out.println(hashMap1.size()); // 2
+        System.out.println();
+
+        //2. equals 메서드만 오버라이딩
+        Map<B, String> hashMap2 = new HashMap<>();
+        B b1 = new B(3);
+        B b2 = new B(3);
+        System.out.println(b1 == b2);
+        System.out.println(b1.equals(b2));
+        System.out.println(b1.hashCode() + ", " + b2.hashCode());
+        hashMap2.put(b1, "첫 번째");
+        hashMap2.put(b2, "두 번째");
+        System.out.println(hashMap2.size()); // 2
+        System.out.println();
+
+        //3. equals + hashpCode 메서드 오버라이딩
+        Map<C, String> hashMap3 = new HashMap<>();
+        C c1 = new C(3);
+        C c2 = new C(3);
+        System.out.println(c1 == c2);
+        System.out.println(c1.equals(c2));
+        System.out.println(c1.hashCode() + ", " + c2.hashCode());
+        hashMap3.put(c1, "첫 번째");
+        hashMap3.put(c2, "두 번째");
+        System.out.println(hashMap3.size()); // 1
+
+    }
+}
+```
+
+--------------
+Hashtable<K,V>
+    
+    HashMap<K,V> 구현 클래스가 단일 쓰레드에 적합하면,
+    HashTable은 멀티쓰레드에 안정성을 가진다.
+
+    생성자 변경을 제외한 나머지 코드는 HashMap과 동일.
+
+```java
+package chapter17.ex.pack17_4.pack3;
+
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+
+public class HashTableMethod {
+    public static void main(String[] args) {
+        Map<Integer, String> hTable1 = new Hashtable<Integer, String>();
+
+        //데이터 추가
+        Map<Integer, String> hMap1 = new HashMap<Integer, String>();
+        //1. put(K key, V value)
+        hMap1.put(2, "나다라");
+        hMap1.put(1, "가나다");
+        hMap1.put(3, "다라마");
+        System.out.println(hMap1.toString());
+
+        //2. putAll(Map<? extends K, ? extends V> m)
+        Map<Integer, String> hmap2 = new HashMap<Integer, String>();
+        hmap2.putAll(hMap1);
+        System.out.println(hmap2.toString());
+
+        //데이터 변경
+        //3. replace(K key, V value)
+        hmap2.replace(1, "가가가");
+        hmap2.replace(4, "라라라"); // key = 4 인 엔트리가 없어서 동작X
+        System.out.println(hmap2.toString());
+
+        //4. replace(K key, V oldValue, V newValue)
+        hmap2.replace(1, "가가가", "나나나");
+        hmap2.replace(2, "다다다", "라라라"); //해당 엔트리 없어서 동작X
+        System.out.println(hmap2.toString());
+
+        //데이터 정보 추출
+        //5. V get(Object key)
+        System.out.println(hmap2.get(1)); // 나나나
+        System.out.println(hmap2.get(2)); // 나다라
+        System.out.println(hmap2.get(3)); // 다라마
+
+        //6. containsKey(Object value)
+        System.out.println(hmap2.containsKey(1)); // true
+        System.out.println(hmap2.containsKey(5)); // false
+
+        //7. containsValue(Object value)
+        System.out.println(hmap2.containsValue("나나나")); //true
+        System.out.println(hmap2.containsValue("다다다")); //false
+
+        //8. Set<K> keySet()
+        Set<Integer> keySet = hmap2.keySet();
+        System.out.println(keySet.toString()); //[1,2,3]
+
+        //9. Set<Map.Entry<K,V>> entrySet()
+        Set<Map.Entry<Integer, String>> entrySet = hmap2.entrySet();
+        System.out.println(entrySet); // [1=나나나, 2=나다라, 3=다라마]
+
+        //10. size()
+        System.out.println(hmap2.size()); //3
+
+        //데이터 삭제
+        //11. remove(Obejct key)
+        hmap2.remove(1);
+        hmap2.remove(4); // 동작X
+        System.out.println(hmap2.toString()); // {2=나다라, 3=다라마}
+
+        //12. remove(Object key, Object value)
+        hmap2.remove(2, "나다라");
+        hmap2.remove(3, "다다다"); // 동작X
+        System.out.println(hmap2.toString()); // {3=다라마}
+
+        //13. clear()
+        hmap2.clear();
+        System.out.println(hmap2.toString()); // {}
+    }
+}
+```
+--------------------
+LinkedHashMap<K,V>
+
+    HashMap<K,V> 기본적인 특성에 입력 데이터의 순서 정보를 추가로 갖고 있는 컬렉션
+    저장 데이터를 출력하면 항상 입력된 순서대로 출력함.
+    HashMap 에선 키를 hashset으로 관리
+    LinkedHashMap 에선 키를 LinkedHashset으로 관리
+
+```java
+package chapter17.ex.pack17_4.pack4;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class LinkedHashMapMethod {
+    public static void main(String[] args) {
+        Map<Integer, String> lhMap1 = new LinkedHashMap<Integer, String>();
+
+        //데이터 추가
+        Map<Integer, String> hMap1 = new HashMap<Integer, String>();
+        //1. put(K key, V value)
+        hMap1.put(2, "나다라");
+        hMap1.put(1, "가나다");
+        hMap1.put(3, "다라마");
+        System.out.println(hMap1.toString());
+
+        //2. putAll(Map<? extends K, ? extends V> m)
+        Map<Integer, String> hmap2 = new HashMap<Integer, String>();
+        hmap2.putAll(hMap1);
+        System.out.println(hmap2.toString());
+
+        //데이터 변경
+        //3. replace(K key, V value)
+        hmap2.replace(1, "가가가");
+        hmap2.replace(4, "라라라"); // key = 4 인 엔트리가 없어서 동작X
+        System.out.println(hmap2.toString());
+
+        //4. replace(K key, V oldValue, V newValue)
+        hmap2.replace(1, "가가가", "나나나");
+        hmap2.replace(2, "다다다", "라라라"); //해당 엔트리 없어서 동작X
+        System.out.println(hmap2.toString());
+
+        //데이터 정보 추출
+        //5. V get(Object key)
+        System.out.println(hmap2.get(1)); // 나나나
+        System.out.println(hmap2.get(2)); // 나다라
+        System.out.println(hmap2.get(3)); // 다라마
+
+        //6. containsKey(Object value)
+        System.out.println(hmap2.containsKey(1)); // true
+        System.out.println(hmap2.containsKey(5)); // false
+
+        //7. containsValue(Object value)
+        System.out.println(hmap2.containsValue("나나나")); //true
+        System.out.println(hmap2.containsValue("다다다")); //false
+
+        //8. Set<K> keySet()
+        Set<Integer> keySet = hmap2.keySet();
+        System.out.println(keySet.toString()); //[1,2,3]
+
+        //9. Set<Map.Entry<K,V>> entrySet()
+        Set<Map.Entry<Integer, String>> entrySet = hmap2.entrySet();
+        System.out.println(entrySet); // [1=나나나, 2=나다라, 3=다라마]
+
+        //10. size()
+        System.out.println(hmap2.size()); //3
+
+        //데이터 삭제
+        //11. remove(Obejct key)
+        hmap2.remove(1);
+        hmap2.remove(4); // 동작X
+        System.out.println(hmap2.toString()); // {2=나다라, 3=다라마}
+
+        //12. remove(Object key, Object value)
+        hmap2.remove(2, "나다라");
+        hmap2.remove(3, "다다다"); // 동작X
+        System.out.println(hmap2.toString()); // {3=다라마}
+
+        //13. clear()
+        hmap2.clear();
+        System.out.println(hmap2.toString()); // {}
+    }
+}
+```
+
+--------------
+TreeMap<K,V>
+
+    Map의 기본 기능에 정렬 및 검색 기능이 추가된 컬렉션.
+    입력 순서와 관계없이 데이터를 Key값의 크기 순으로 저장.
+    따라서 Key 객체는 크기 비교의 기준을 가지고 있어야함.
