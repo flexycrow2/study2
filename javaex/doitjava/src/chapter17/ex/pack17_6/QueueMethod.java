@@ -22,7 +22,7 @@ public class QueueMethod {
         System.out.println("---구분선---");
 
         //2. 예외 처리 기능 포함 메서드
-        Queue<Integer> queue2 = new LinkedList<>();
+        Queue<Integer> queue2 = new LinkedList<Integer>();
         System.out.println(queue1.peek());
         //2-1. offer(E item)
         queue2.offer(3);
@@ -35,7 +35,5 @@ public class QueueMethod {
         System.out.println(queue2.poll());
         System.out.println(queue2.poll());
         System.out.println(queue2.poll());
-
-
     }
 }
